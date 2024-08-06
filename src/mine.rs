@@ -9,6 +9,7 @@ use ore_api::{
     consts::{BUS_ADDRESSES, BUS_COUNT, EPOCH_DURATION, BUS_EPOCH_REWARDS, TOKEN_DECIMALS},
     state::{Config, Proof, Bus},
 };
+use ore_utils::AccountDeserialize;
 use rand::Rng;
 use solana_program::pubkey::Pubkey;
 use solana_rpc_client::spinner;
