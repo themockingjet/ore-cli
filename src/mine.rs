@@ -6,7 +6,7 @@ use drillx::{
     Hash, Solution,
 };
 use ore_api::{
-    consts::{BUS_ADDRESSES, BUS_COUNT, EPOCH_DURATION},
+    consts::{BUS_ADDRESSES, BUS_COUNT, EPOCH_DURATION, BUS_EPOCH_REWARDS, TOKEN_DECIMALS},
     state::{Config, Proof},
 };
 use rand::Rng;
