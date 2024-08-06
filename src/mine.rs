@@ -54,15 +54,17 @@ impl Miner {
 
             // Submit most difficult hash
             let mut compute_budget = 500_000;
+            let bus_addr = self.find_bus().await;
             let mut ixs = vec![ore_api::instruction::auth(proof_pubkey(signer.pubkey()))];
             if self.should_reset(config).await && rand::thread_rng().gen_range(0..100).eq(&0) {
                 compute_budget += 100_000;
                 ixs.push(ore_api::instruction::reset(signer.pubkey()));
             }
+            
             ixs.push(ore_api::instruction::mine(
                 signer.pubkey(),
                 signer.pubkey(),
-                find_bus(),
+                bus_addr,
                 solution,
             ));
             self.send_and_confirm(&ixs, ComputeBudget::Fixed(compute_budget), false)
@@ -188,10 +190,22 @@ impl Miner {
             .saturating_sub(clock.unix_timestamp)
             .max(0) as u64
     }
-}
 
-// TODO Pick a better strategy (avoid draining bus)
-fn find_bus() -> Pubkey {
-    let i = rand::thread_rng().gen_range(0..BUS_COUNT);
-    BUS_ADDRESSES[i]
+    pub async fn find_bus(&self) -> Pubkey {
+        let client = self.rpc_client.clone();
+        let mut bus_and_reward = (0, 0f64);
+        for address in BUS_ADDRESSES.iter() {
+            let data = client.get_account_data(address).await.unwrap();
+            match Bus::try_from_bytes(&data) {
+                Ok(bus) => {
+                    let rewards = (bus.rewards as f64) / 10f64.powf(TOKEN_DECIMALS as f64);
+                    if bus_and_reward.1 < rewards {
+                        bus_and_reward = (bus.id, rewards);
+                    }
+                }
+                Err(_) => {}
+            }
+        }
+        BUS_ADDRESSES[bus_and_reward.0 as usize]
+    }
 }
