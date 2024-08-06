@@ -7,7 +7,7 @@ use drillx::{
 };
 use ore_api::{
     consts::{BUS_ADDRESSES, BUS_COUNT, EPOCH_DURATION, BUS_EPOCH_REWARDS, TOKEN_DECIMALS},
-    state::{Config, Proof},
+    state::{Config, Proof, Bus},
 };
 use rand::Rng;
 use solana_program::pubkey::Pubkey;
